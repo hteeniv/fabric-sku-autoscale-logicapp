@@ -1,0 +1,59 @@
+{
+    "managedApiConnections": {
+        "arm": {
+            "api": {
+                "id": "/subscriptions/your-subscription-id/providers/Microsoft.Web/locations/your-location/managedApis/arm"
+            },
+            "authentication": {
+                "type": "ManagedServiceIdentity"
+            },
+            "connection": {
+                "id": "/subscriptions/your-subscription-id/resourceGroups/your-logic-app-resource-group-name/providers/Microsoft.Web/connections/arm"
+            },
+            "connectionProperties": {
+                "authentication": {
+                    "audience": "https://management.core.windows.net/",
+                    "type": "ManagedServiceIdentity"
+                }
+            },
+            "connectionRuntimeUrl": "this will be auto generated once you create the connection link"
+        },
+        "office365": {
+            "api": {
+                "id": "/subscriptions/your-subscription-id/providers/Microsoft.Web/locations/your-location/managedApis/office365"
+            },
+            "authentication": {
+                "type": "ManagedServiceIdentity"
+            },
+            "connection": {
+                "id": "/subscriptions/your-subscription-id/resourceGroups/your-logic-app-resource-group-name/providers/Microsoft.Web/connections/office365"
+            },
+            "connectionRuntimeUrl": "this will be auto generated once you create the connection link"
+        },
+        "powerbi": {
+            "api": {
+                "id": "/subscriptions/your-subscription-id/providers/Microsoft.Web/locations/your-location/managedApis/powerbi"
+            },
+            "authentication": {
+                "type": "ManagedServiceIdentity"
+            },
+            "connection": {
+                "id": "/subscriptions/your-subscription-id/resourceGroups/your-logic-app-resource-group-name/providers/Microsoft.Web/connections/powerbi"
+            },
+            "connectionRuntimeUrl": "this will be auto generated once you create the connection link"
+        },
+        "teams": {
+            "api": {
+                "id": "/subscriptions/your-subscription-id/providers/Microsoft.Web/locations/your-location/managedApis/teams"
+            },
+            "authentication": {
+                "type": "ManagedServiceIdentity"
+            },
+            "connection": {
+                "id": "/subscriptions/your-subscription-id/resourceGroups/your-logic-app-resource-group-name/providers/Microsoft.Web/connections/teams"
+            },
+            "connectionRuntimeUrl": "this will be auto generated once you create the connection link"
+        }
+    },
+    "serviceProviderConnections": {}
+}
