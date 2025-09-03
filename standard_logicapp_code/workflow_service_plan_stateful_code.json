@@ -1,0 +1,1579 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Switch": {
+                "type": "Switch",
+                "expression": "@variables('SKU Type')",
+                "default": {
+                    "actions": {
+                        "Terminate": {
+                            "type": "Terminate",
+                            "inputs": {
+                                "runStatus": "Failed",
+                                "runError": {
+                                    "code": "400",
+                                    "message": "No Valid SKU type to calculate the CUs"
+                                }
+                            }
+                        }
+                    }
+                },
+                "cases": {
+                    "If_F64": {
+                        "actions": {
+                            "Set_CUs_value_for_F64": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Initial CUs value",
+                                    "value": 64
+                                }
+                            }
+                        },
+                        "case": "F64"
+                    },
+                    "If_F128": {
+                        "actions": {
+                            "Set_CUs_value_for_F128": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Initial CUs value",
+                                    "value": 128
+                                }
+                            }
+                        },
+                        "case": "F128"
+                    },
+                    "If_F256": {
+                        "actions": {
+                            "Set_CUs_value_for_F256": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Initial CUs value",
+                                    "value": 256
+                                }
+                            }
+                        },
+                        "case": "F256"
+                    },
+                    "If_F512": {
+                        "actions": {
+                            "Set_CUs_value_for_F512": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Initial CUs value",
+                                    "value": 512
+                                }
+                            }
+                        },
+                        "case": "F512"
+                    },
+                    "If_F1024": {
+                        "actions": {
+                            "Set_CUs_value_for_F1024": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Initial CUs value",
+                                    "value": 1024
+                                }
+                            }
+                        },
+                        "case": "F1024"
+                    },
+                    "If_F2048": {
+                        "actions": {
+                            "Set_CUs_value_for_F2048": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Initial CUs value",
+                                    "value": 2048
+                                }
+                            }
+                        },
+                        "case": "F2048"
+                    }
+                },
+                "runAfter": {
+                    "Get_SKU_type": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "CUs_value_for_30secs": {
+                "type": "Compose",
+                "inputs": "@mul(variables('Initial CUs value'), 30)",
+                "runAfter": {
+                    "Switch": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Condition_for_F256": {
+                "type": "If",
+                "expression": {
+                    "or": [
+                        {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        200
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F64"
+                                    ]
+                                },
+                                {
+                                    "less": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        300
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        70
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F128"
+                                    ]
+                                },
+                                {
+                                    "less": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        200
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "greater": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        30
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F256"
+                                    ]
+                                },
+                                {
+                                    "less": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        70
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "lessOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        30
+                                    ]
+                                },
+                                {
+                                    "greater": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        15
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F512"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "lessOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        15
+                                    ]
+                                },
+                                {
+                                    "greater": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        7.5
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F1024"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "lessOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        7.5
+                                    ]
+                                },
+                                {
+                                    "greater": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        3.75
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F2048"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "actions": {
+                    "Condition_to_check_empty_SKU_value_for_F256": {
+                        "type": "If",
+                        "expression": {
+                            "and": [
+                                {
+                                    "equals": [
+                                        "@variables('Final SKU Name')",
+                                        ""
+                                    ]
+                                }
+                            ]
+                        },
+                        "actions": {
+                            "Set_F256_SKU": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Final SKU Name",
+                                    "value": "F256"
+                                }
+                            }
+                        },
+                        "else": {
+                            "actions": {}
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Condition_for_F128": {
+                            "type": "If",
+                            "expression": {
+                                "or": [
+                                    {
+                                        "and": [
+                                            {
+                                                "greaterOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    70
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    200
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F64"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "lessOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    30
+                                                ]
+                                            },
+                                            {
+                                                "greater": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    20
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F256"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    30
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    70
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F128"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    7.5
+                                                ]
+                                            },
+                                            {
+                                                "lessOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    15
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F512"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "lessOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    7.5
+                                                ]
+                                            },
+                                            {
+                                                "greater": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    3.75
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F1024"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "lessOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    3.75
+                                                ]
+                                            },
+                                            {
+                                                "greater": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    1.875
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F2048"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "actions": {
+                                "Condition_to_check_empty_SKU_value_for_F128": {
+                                    "type": "If",
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@variables('Final SKU Name')",
+                                                    ""
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "actions": {
+                                        "Set_F128_SKU": {
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "Final SKU Name",
+                                                "value": "F128"
+                                            }
+                                        }
+                                    },
+                                    "else": {
+                                        "actions": {}
+                                    }
+                                }
+                            },
+                            "else": {
+                                "actions": {
+                                    "Condition_for_F64": {
+                                        "type": "If",
+                                        "expression": {
+                                            "or": [
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "lessOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                20
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F256"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "lessOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                30
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F128"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "less": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                70
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F64"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "lessOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                7.5
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F512"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "lessOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                3.75
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F1024"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "lessOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                1.875
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F2048"
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "actions": {
+                                            "Condition_to_check_empty_SKU_value_for_F64": {
+                                                "type": "If",
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "equals": [
+                                                                "@variables('Final SKU Name')",
+                                                                ""
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "actions": {
+                                                    "Set_F64_SKU": {
+                                                        "type": "SetVariable",
+                                                        "inputs": {
+                                                            "name": "Final SKU Name",
+                                                            "value": "F64"
+                                                        }
+                                                    }
+                                                },
+                                                "else": {
+                                                    "actions": {}
+                                                }
+                                            }
+                                        },
+                                        "else": {
+                                            "actions": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Condition_for_F2048": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Check_Final_SKU_Name": {
+                "type": "Compose",
+                "inputs": "@concat(variables('Final SKU Name'),variables('TestSKU'))",
+                "runAfter": {
+                    "Condition_for_F256": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Condition,_Check_Capacity_Status": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@body('Read_Current_SKU')?['properties']?['state']",
+                                "Active"
+                            ]
+                        }
+                    ]
+                },
+                "actions": {
+                    "Condition,_Check_Current_SKU_with_Calculated_SKU_type": {
+                        "type": "If",
+                        "expression": {
+                            "and": [
+                                {
+                                    "not": {
+                                        "equals": [
+                                            "@variables('Final SKU Name')",
+                                            "@body('Read_Current_SKU')?['sku']?['name']"
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "actions": {
+                            "Upscale_or_Downscale_Fabric_SKU_type": {
+                                "type": "ApiConnection",
+                                "inputs": {
+                                    "host": {
+                                        "connection": {
+                                            "referenceName": "arm"
+                                        }
+                                    },
+                                    "method": "put",
+                                    "body": {
+                                        "sku": {
+                                            "name": "@variables('Final SKU Name')"
+                                        },
+                                        "location": "eastus2",
+                                        "tags": "@variables('Tags')",
+                                        "properties": {
+                                            "administration": {
+                                                "members": "@variables('Admins')"
+                                            }
+                                        }
+                                    },
+                                    "path": "/subscriptions/@{encodeURIComponent('subscription-id-of-fabric-sku-resourrce-group')}/resourcegroups/@{encodeURIComponent('your-fabric-sku-resource-group-name')}/providers/@{encodeURIComponent('Microsoft.Fabric')}/@{encodeURIComponent('capacities/your-fabric-sku-name')}",
+                                    "queries": {
+                                        "x-ms-api-version": "2023-11-01"
+                                    }
+                                }
+                            }
+                        },
+                        "else": {
+                            "actions": {}
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Send_an_email_if_the_workflow_step_(Current_SKU_status_not_equals_Active)_fails": {
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "referenceName": "office365"
+                                    }
+                                },
+                                "method": "post",
+                                "body": {
+                                    "To": "FabricErrorNotifications@youremail.com",
+                                    "Subject": "Workflow failed!!! (Error with the status of Current SKU)",
+                                    "Body": "<p class=\"editor-paragraph\">Hello Team,</p><br><p class=\"editor-paragraph\">The Logic app, Workflow has failed due to errors in reading the Current Fabric SKU details. The total CUs value for this query is, </p><br><p class=\"editor-paragraph\">The status of the Fabric SKU should be 'Active' but it is currently as, @{body('Read_Current_SKU')?['properties']?['state']}<br><br>Please check the URL below for more info,<br><br>https://portal.azure.com/</p>",
+                                    "Importance": "Normal"
+                                },
+                                "path": "/v2/Mail"
+                            }
+                        },
+                        "Terminate_if_the_Current_Fabric_SKU_status_is_not_Active": {
+                            "type": "Terminate",
+                            "inputs": {
+                                "runStatus": "Failed",
+                                "runError": {
+                                    "code": "404",
+                                    "message": "There was an error with the status of the Current Fabric SKU!"
+                                }
+                            },
+                            "runAfter": {
+                                "Send_an_email_if_the_workflow_step_(Current_SKU_status_not_equals_Active)_fails": [
+                                    "SUCCEEDED"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Get_Tags": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Send_SKU_details_to_Teams_channel": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "teams"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "recipient": {
+                            "groupId": "your-teams-channel-group-id",
+                            "channelId": "your-teams-channel-id"
+                        },
+                        "messageBody": "<p class=\"editor-paragraph\">The Fabric SKU was @{body('Read_Current_SKU')?['sku']?['name']} and is currently set to @{body('Read_the_Final_SKU')?['sku']?['name']} based on the Data calculations for Total CUs used for the last 6 minutes.<br><br>The Total CUs percentile value for this session is, @{outputs('Total_CUs_percentile')}<br><br>Please, refer to the Logic app Run history below for more details.</p><br><p class=\"editor-paragraph\"><a href=\"https://portal.azure.com\" class=\"editor-link\">https://portal.azure.com</a></p>"
+                    },
+                    "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
+                },
+                "runAfter": {
+                    "Read_the_Final_SKU": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Read_Current_SKU": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "arm"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/subscriptions/@{encodeURIComponent('subscription-id-of-fabric-sku-resourrce-group')}/resourcegroups/@{encodeURIComponent('your-fabric-sku-resource-group-name')}/providers/@{encodeURIComponent('Microsoft.Fabric')}/@{encodeURIComponent('capacities/your-fabric-sku-name')}",
+                    "queries": {
+                        "x-ms-api-version": "2023-11-01"
+                    }
+                },
+                "runAfter": {
+                    "Set_Total_CUs_Variable": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Read_the_Final_SKU": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "arm"
+                        }
+                    },
+                    "method": "get",
+                    "path": "/subscriptions/@{encodeURIComponent('subscription-id-of-fabric-sku-resourrce-group')}/resourcegroups/@{encodeURIComponent('your-fabric-sku-resource-group-name')}/providers/@{encodeURIComponent('Microsoft.Fabric')}/@{encodeURIComponent('capacities/your-fabric-sku-name')}",
+                    "queries": {
+                        "x-ms-api-version": "2023-11-01"
+                    }
+                },
+                "runAfter": {
+                    "Condition,_Check_Capacity_Status": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Send_an_email_if_the_workflow_steps_(Final_SKU_reading)_fails": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "office365"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "To": "FabricErrorNotifications@youremail.com",
+                        "Subject": " Logic app, Workflow failed!!! (Error in reading the Final SKU)",
+                        "Body": "<p class=\"editor-paragraph\">Hello Team,</p><br><p class=\"editor-paragraph\">The Logic app, Workflow has failed due to errors in reading the Final Fabric SKU details. The Total CUs value is, @{variables('Current Total CUs')}<br><br>Please check the URL below for more info,<br><br>https://portal.azure.com</p>",
+                        "Importance": "Normal"
+                    },
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Read_the_Final_SKU": [
+                        "FAILED"
+                    ]
+                }
+            },
+            "Send_an_email_if_the_workflow_steps_(Teams_chat_posting)_fails": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "office365"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "To": "FabricErrorNotifications@youremail.com",
+                        "Subject": " Logic app, Workflow failed!!! (Error in posting the Fabric SKU details to Teams)",
+                        "Body": "<p class=\"editor-paragraph\">Hello Team,</p><br><p class=\"editor-paragraph\">The  Logic app, Workflow has failed due to errors in posting the Fabric SKU details chat to the Teams channel. The content of message is, @{body('Send_SKU_details_to_Teams_channel')}<br><br>Please check the URL below for more info,<br><br>https://portal.azure.com</p>",
+                        "Importance": "Normal"
+                    },
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Send_SKU_details_to_Teams_channel": [
+                        "FAILED"
+                    ]
+                }
+            },
+            "Terminate_if_the_Current_SKU_Read_fails": {
+                "type": "Terminate",
+                "inputs": {
+                    "runStatus": "Failed",
+                    "runError": {
+                        "code": "404",
+                        "message": "There was an error when reading the Current Fabric SKU details action step!"
+                    }
+                },
+                "runAfter": {
+                    "Send_an_email_if_the_workflow_steps_(Current_SKU_reading)_fails": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Terminate_if_the_Final_SKU_Read_fails": {
+                "type": "Terminate",
+                "inputs": {
+                    "runStatus": "Failed",
+                    "runError": {
+                        "code": "404",
+                        "message": "There was an error when reading the Final Fabric SKU details action step!"
+                    }
+                },
+                "runAfter": {
+                    "Send_an_email_if_the_workflow_steps_(Final_SKU_reading)_fails": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Terminate_if_the_Teams_chat_posting_fails": {
+                "type": "Terminate",
+                "inputs": {
+                    "runStatus": "Failed",
+                    "runError": {
+                        "code": "404",
+                        "message": "There was an error when posting the SKU details to the Teams chat action step!"
+                    }
+                },
+                "runAfter": {
+                    "Send_an_email_if_the_workflow_steps_(Teams_chat_posting)_fails": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Send_an_email_if_the_workflow_steps_(Current_SKU_reading)_fails": {
+                "type": "ApiConnection",
+                "inputs": {
+                    "host": {
+                        "connection": {
+                            "referenceName": "office365"
+                        }
+                    },
+                    "method": "post",
+                    "body": {
+                        "To": "FabricErrorNotifications@youremail.com",
+                        "Subject": " Logic app, Workflow failed!!! (Error in reading the Current SKU)",
+                        "Body": "<p class=\"editor-paragraph\">Hello Team,</p><br><p class=\"editor-paragraph\">The Logic app, Workflow has failed due to errors in reading the Current Fabric SKU details. The total CUs value for this query is, @{variables('Current Total CUs')}</p><p class=\"editor-paragraph\"><br>Please check the URL below for more info,<br><br>https://portal.azure.com</p>",
+                        "Importance": "Normal"
+                    },
+                    "path": "/v2/Mail"
+                },
+                "runAfter": {
+                    "Read_Current_SKU": [
+                        "FAILED"
+                    ]
+                }
+            },
+            "Condition_for_F2048": {
+                "type": "If",
+                "expression": {
+                    "or": [
+                        {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        70
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F1024"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        200
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F512"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        300
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F256"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        400
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F128"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "greaterOrEquals": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        500
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F64"
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "and": [
+                                {
+                                    "greater": [
+                                        "@outputs('Total_CUs_percentile')",
+                                        30
+                                    ]
+                                },
+                                {
+                                    "equals": [
+                                        "@body('Read_Current_SKU')?['sku']?['name']",
+                                        "F2048"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "actions": {
+                    "Condition_to_check_empty_SKU_value_for_F2048": {
+                        "type": "If",
+                        "expression": {
+                            "and": [
+                                {
+                                    "equals": [
+                                        "@variables('Final SKU Name')",
+                                        ""
+                                    ]
+                                }
+                            ]
+                        },
+                        "actions": {
+                            "Set_F2048_SKU": {
+                                "type": "SetVariable",
+                                "inputs": {
+                                    "name": "Final SKU Name",
+                                    "value": "F2048"
+                                }
+                            }
+                        },
+                        "else": {
+                            "actions": {}
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "Condition_for_F1024": {
+                            "type": "If",
+                            "expression": {
+                                "or": [
+                                    {
+                                        "and": [
+                                            {
+                                                "greaterOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    70
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    200
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F512"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "lessOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    30
+                                                ]
+                                            },
+                                            {
+                                                "greater": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    20
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F2048"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "greater": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    30
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    70
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F1024"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "greaterOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    200
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    300
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F256"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "greaterOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    300
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    400
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F128"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "and": [
+                                            {
+                                                "greaterOrEquals": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    400
+                                                ]
+                                            },
+                                            {
+                                                "less": [
+                                                    "@outputs('Total_CUs_percentile')",
+                                                    500
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@body('Read_Current_SKU')?['sku']?['name']",
+                                                    "F64"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "actions": {
+                                "Condition_to_check_empty_SKU_value_for_F1024": {
+                                    "type": "If",
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@variables('Final SKU Name')",
+                                                    ""
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "actions": {
+                                        "Set_F1024_SKU": {
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "Final SKU Name",
+                                                "value": "F1024"
+                                            }
+                                        }
+                                    },
+                                    "else": {
+                                        "actions": {}
+                                    }
+                                }
+                            },
+                            "else": {
+                                "actions": {
+                                    "Condition_for_F512": {
+                                        "type": "If",
+                                        "expression": {
+                                            "or": [
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "greaterOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                70
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F256"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "less": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                200
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "lessOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                30
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F1024"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "greater": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                20
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "lessOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                15
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F2048"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "greater": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                7.5
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "greaterOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                200
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F128"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "less": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                300
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "greaterOrEquals": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                300
+                                                            ]
+                                                        },
+                                                        {
+                                                            "less": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                400
+                                                            ]
+                                                        },
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F64"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "and": [
+                                                        {
+                                                            "equals": [
+                                                                "@body('Read_Current_SKU')?['sku']?['name']",
+                                                                "F512"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "greater": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                30
+                                                            ]
+                                                        },
+                                                        {
+                                                            "less": [
+                                                                "@outputs('Total_CUs_percentile')",
+                                                                70
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "actions": {
+                                            "Condition_to_check_empty_SKU_value_for_F512": {
+                                                "type": "If",
+                                                "expression": {
+                                                    "and": [
+                                                        {
+                                                            "equals": [
+                                                                "@variables('Final SKU Name')",
+                                                                ""
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "actions": {
+                                                    "Set_F512_SKU": {
+                                                        "type": "SetVariable",
+                                                        "inputs": {
+                                                            "name": "Final SKU Name",
+                                                            "value": "F512"
+                                                        }
+                                                    }
+                                                },
+                                                "else": {
+                                                    "actions": {}
+                                                }
+                                            }
+                                        },
+                                        "else": {
+                                            "actions": {}
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Total_CUs_percentile": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Until": {
+                "type": "Until",
+                "expression": "@equals(variables('Exit Loop'),true)",
+                "limit": {
+                    "count": 6,
+                    "timeout": "PT1H"
+                },
+                "actions": {
+                    "Query_Total_CUs": {
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "referenceName": "powerbi"
+                                }
+                            },
+                            "method": "post",
+                            "body": {
+                                "query": "EVALUATE\nROW(\n    \"Sum of CU (s)\",\n    SUMX(\n        TOPN(\n            12,\n            'CU Detail',\n            'CU Detail'[Window end time],\n            DESC\n        ),\n        'CU Detail'[CU (s)]\n    )\n)\n",
+                                "serializerSettings": {
+                                    "includeNulls": false
+                                }
+                            },
+                            "path": "/v1.0/myorg/groups/@{encodeURIComponent('your-powerbi-workspace-group-id')}/datasets/@{encodeURIComponent('your-capacity-metrcis-datasets-id')}/executeQueries",
+                            "queries": {
+                                "pbi_source": "powerAutomate"
+                            }
+                        }
+                    },
+                    "Set_Exit_Loop_variable_to_false": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "Exit Loop",
+                            "value": false
+                        },
+                        "runAfter": {
+                            "Query_Total_CUs": [
+                                "FAILED"
+                            ]
+                        }
+                    },
+                    "Set_Exit_Loop_variable_to_true": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "Exit Loop",
+                            "value": true
+                        },
+                        "runAfter": {
+                            "Query_Total_CUs": [
+                                "SUCCEEDED"
+                            ]
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Intialize_Final_SKU_name_variable": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Condition": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@variables('Exit Loop')",
+                                true
+                            ]
+                        }
+                    ]
+                },
+                "actions": {},
+                "else": {
+                    "actions": {
+                        "Terminate_if_the_Power_BI_Query_Fails": {
+                            "type": "Terminate",
+                            "inputs": {
+                                "runStatus": "Failed",
+                                "runError": {
+                                    "code": "404",
+                                    "message": "There was an error when querying the Power BI dataset action step!"
+                                }
+                            },
+                            "runAfter": {
+                                "Send_an_email_if_the_workflow_steps_(Power_BI_Querying)_fails": [
+                                    "SUCCEEDED"
+                                ]
+                            }
+                        },
+                        "Send_an_email_if_the_workflow_steps_(Power_BI_Querying)_fails": {
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "referenceName": "office365"
+                                    }
+                                },
+                                "method": "post",
+                                "body": {
+                                    "To": "FabricErrorNotifications@youremail.com",
+                                    "Subject": " Logic app, Workflowfailed!!! (Error in querying the Fabric capacity metrics dataset)",
+                                    "Body": "<p class=\"editor-paragraph\">Hello Team,<br><br>The  Logic app,  Workflow has failed due to errors in querying the Fabric capacity metrics dataset. The Power BI query errors are, @{body('Query_Total_CUs')}</p><p class=\"editor-paragraph\"><br>Please check the URL below for more info,<br><br>https://portal.azure.com</p>",
+                                    "Importance": "Normal"
+                                },
+                                "path": "/v2/Mail"
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Until": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Set_Total_CUs_Variable": {
+                "type": "SetVariable",
+                "inputs": {
+                    "name": "Current Total CUs",
+                    "value": "@float(body('Query_Total_CUs')?['firstTableRows'][0]['[Sum of CU (s)]'])"
+                },
+                "runAfter": {
+                    "Condition": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Total_CUs_percentile": {
+                "type": "Compose",
+                "inputs": "@mul(div(variables('Current Total CUs'),mul(outputs('CUs_value_for_30secs'), 12)), 100)",
+                "runAfter": {
+                    "CUs_value_for_30secs": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Get_SKU_type": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "SKU Type",
+                            "type": "string",
+                            "value": "@body('Read_Current_SKU')?['sku']?['name']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Read_Current_SKU": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Get_Tags": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Admins",
+                            "type": "array",
+                            "value": "@body('Read_Current_SKU')?['properties']?['administration']?['members']"
+                        },
+                        {
+                            "name": "Tags",
+                            "type": "object",
+                            "value": "@body('Read_Current_SKU')?['tags']"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Check_Final_SKU_Name": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Intialize_Final_SKU_name_variable": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Exit Loop",
+                            "type": "boolean",
+                            "value": true
+                        },
+                        {
+                            "name": "Current Total CUs",
+                            "type": "float"
+                        },
+                        {
+                            "name": "Initial CUs value",
+                            "type": "float"
+                        },
+                        {
+                            "name": "TestSKU",
+                            "type": "string"
+                        },
+                        {
+                            "name": "Final SKU Name",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {}
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "triggers": {
+            "Recurrence": {
+                "type": "Recurrence",
+                "recurrence": {
+                    "interval": 6,
+                    "frequency": "Minute",
+                    "timeZone": "Eastern Standard Time",
+                    "startTime": "2024-09-01T12:00:00Z"
+                }
+            }
+        }
+    },
+    "kind": "Stateful"
+}
